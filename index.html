@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Neon Shooter</title>
+    <title>Retro Neon Highway 3D</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,7 +12,7 @@
             user-select: none;
         }
         body {
-            background: #020208;
+            background: #05010c;
             color: #fff;
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
@@ -21,282 +21,311 @@
             align-items: center;
             height: 100vh;
         }
-        #gameCanvas {
-            border: 2px solid #00f2fe;
-            box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
-            background: #050515;
+        /* 3D Poyga Maydoni */
+        #gameViewport {
+            position: relative;
+            width: 480px;
+            height: 600px;
+            border: 4px solid #ff007f;
+            box-shadow: 0 0 40px rgba(255, 0, 127, 0.4);
+            border-radius: 24px;
+            background: linear-gradient(to bottom, #110426 0%, #05010c 100%);
+            overflow: hidden;
+            perspective: 350px; /* Realistik yo'l perspektivasi */
         }
-        .ui-container {
+        .hud {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 25px;
+            width: 100%;
             text-align: center;
+            z-index: 100;
             pointer-events: none;
         }
-        .score {
+        .speedometer {
             font-size: 2rem;
-            font-weight: bold;
-            color: #00f2fe;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+            font-weight: 900;
+            color: #ff007f;
+            text-shadow: 0 0 15px #ff007f;
+            letter-spacing: 2px;
+        }
+        /* 3D Istiqbolli Yo'l */
+        #highway {
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 60%;
+            background: #0d061f;
+            border-left: 6px solid #00f2fe;
+            border-right: 6px solid #00f2fe;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+            transform: rotateX(65deg);
+            transform-origin: bottom center;
+        }
+        .road-line {
+            position: absolute;
+            left: 49%;
+            width: 2%;
+            height: 40px;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+        /* Neon Sport Mashinasi */
+        #playerCar {
+            position: absolute;
+            bottom: 40px;
+            left: 200px;
+            width: 80px;
+            height: 50px;
+            background: linear-gradient(to top, #ff007f, #ff00ff);
+            border-radius: 8px 8px 4px 4px;
+            box-shadow: 0 0 25px #ff007f;
+            z-index: 50;
+            pointer-events: none;
+            transition: transform 0.1s ease, left 0.1s ease;
+        }
+        /* Faralar yorug'ligi */
+        .taillight {
+            position: absolute;
+            bottom: 4px;
+            width: 15px;
+            height: 6px;
+            background: #00f2fe;
+            box-shadow: 0 0 12px #00f2fe;
+        }
+        .tl-left { left: 8px; }
+        .tl-right { right: 8px; }
+        /* 3D To'siq Mashinalar / Bloklar */
+        .obstacle3d {
+            position: absolute;
+            width: 60px;
+            height: 45px;
+            background: linear-gradient(to bottom, #00ff66, #00aa44);
+            box-shadow: 0 0 20px #00ff66;
+            border-radius: 6px;
         }
         .controls-hint {
             position: absolute;
-            bottom: 20px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
+            bottom: 15px;
+            color: rgba(255, 0, 127, 0.6);
+            font-size: 0.85rem;
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
         }
+        /* Crash Ekran */
         .game-over-screen {
             position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 1, 12, 0.96);
             display: none;
             flex-direction: column;
             align-items: center;
-            background: rgba(5, 5, 21, 0.85);
-            padding: 40px;
-            border-radius: 16px;
-            border: 1px solid #ff007f;
-            box-shadow: 0 0 40px rgba(255, 0, 127, 0.4);
-            text-align: center;
+            justify-content: center;
+            z-index: 200;
         }
         .game-over-screen h2 {
             font-size: 3rem;
             color: #ff007f;
-            text-shadow: 0 0 15px rgba(255, 0, 127, 0.8);
-            margin-bottom: 20px;
+            text-shadow: 0 0 25px #ff007f;
+            margin-bottom: 10px;
+            letter-spacing: 4px;
         }
         .restart-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            font-size: 1.2rem;
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
-            border: none;
-            color: #000;
+            margin-top: 30px;
+            padding: 12px 35px;
+            font-size: 1.1rem;
             font-weight: bold;
-            border-radius: 8px;
+            background: transparent;
+            border: 2px solid #00f2fe;
+            color: #00f2fe;
+            border-radius: 30px;
             cursor: pointer;
-            transition: transform 0.2s;
-            pointer-events: auto;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            transition: all 0.3s;
         }
         .restart-btn:hover {
+            background: #00f2fe;
+            color: #000;
+            box-shadow: 0 0 30px #00f2fe;
             transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 
-    <div class="ui-container">
-        <div class="score" id="scoreDisplay">SCORE: 0</div>
+    <div id="gameViewport">
+        <div class="hud">
+            <div class="speedometer" id="scoreDisplay">SPEED: 0 km/h</div>
+        </div>
+
+        <div id="highway"></div>
+        <div id="playerCar">
+            <div class="taillight tl-left"></div>
+            <div class="taillight tl-right"></div>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen">
+            <h2>HIGHWAY CRASH</h2>
+            <div class="speedometer" id="finalScoreDisplay">SCORE: 0</div>
+            <button class="restart-btn" id="restartBtn">RESTART RACE</button>
+        </div>
     </div>
 
-    <canvas id="gameCanvas" width="480" height="640"></canvas>
-
-    <div class="game-over-screen" id="gameOverScreen">
-        <h2>GAME OVER</h2>
-        <div class="score" id="finalScoreDisplay">SCORE: 0</div>
-        <button class="restart-btn" onclick="resetGame()">Qaytadan boshlash</button>
-    </div>
-
-    <div class="controls-hint">Boshqarish: Sichqonchani suring (kema ergashadi) va chap tugmani bosing (otish)</div>
+    <div class="controls-hint">Boshqarish: Sichqonchani suring (Mashina o'ngga-chapga o'ta silliq buriladi)</div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        const viewport = document.getElementById('gameViewport');
+        const highway = document.getElementById('highway');
+        const playerCar = document.getElementById('playerCar');
         const scoreDisplay = document.getElementById('scoreDisplay');
         const finalScoreDisplay = document.getElementById('finalScoreDisplay');
         const gameOverScreen = document.getElementById('gameOverScreen');
+        const restartBtn = document.getElementById('restartBtn');
 
         let score = 0;
         let isGameOver = false;
-
-       
-        const player = {
-            x: canvas.width / 2 - 20,
-            y: canvas.height - 60,
-            width: 40,
-            height: 40,
-            color: '#00f2fe'
-        };
-
-        let lasers = [];
-        let asteroids = [];
-        let particles = [];
-
+        let targetX = 200;
+        let currentX = 200;
         
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const rootX = e.clientX - rect.left;
-            player.x = rootX - player.width / 2;
+        let roadLines = [];
+        let obstacles = [];
+        let loopInterval, spawnInterval, lineInterval;
+
+        const areaWidth = 480;
+        const carWidth = 80;
+
+        // Sichqoncha orqali mashinani silliq burish
+        viewport.addEventListener('mousemove', (e) => {
+            if (isGameOver) return;
+            const rect = viewport.getBoundingClientRect();
+            targetX = e.clientX - rect.left - (carWidth / 2);
+
+            // Yo'l chetidan chiqib ketmaslik cheklovlari
+            if (targetX < 60) targetX = 60;
+            if (targetX > areaWidth - carWidth - 60) targetX = areaWidth - carWidth - 60;
+        });
+
+        // Yo'l chiziqlarini harakatlantirish (Tezlik effekti)
+        function spawnRoadLine() {
+            if (isGameOver) return;
+            const line = document.createElement('div');
+            line.className = 'road-line';
+            line.style.top = '-40px';
+            highway.appendChild(line);
+            roadLines.push(line);
+        }
+
+        // To'siq mashinalarni 3D uzoqlikdan chiqarish
+        function spawnObstacle() {
+            if (isGameOver) return;
+            const obs = document.createElement('div');
+            obs.className = 'obstacle3d';
             
-          
-            if (player.x < 0) player.x = 0;
-            if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
-        });
+            // Yo'l perspektivasiga mos ravishda markazga yaqin joylashadi
+            let lane = Math.floor(Math.random() * 3); // 3 ta yo'lak
+            let oX = 110 + lane * 100; 
+            let z = -400; // Uzoq ufqdan boshlanadi
 
-        
-        canvas.addEventListener('click', () => {
-            if (isGameOver) return;
-            lasers.push({
-                x: player.x + player.width / 2 - 3,
-                y: player.y,
-                width: 6,
-                height: 15,
-                color: '#ff007f',
-                speed: 8
-            });
-        });
-
-        
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    radius: Math.random() * 3 + 1,
-                    color: color,
-                    speedX: (Math.random() - 0.5) * 4,
-                    speedY: (Math.random() - 0.5) * 4,
-                    alpha: 1
-                });
-            }
-        }
-
-      
-        function spawnAsteroid() {
-            if (isGameOver) return;
-            const size = Math.random() * 30 + 20;
-            asteroids.push({
-                x: Math.random() * (canvas.width - size),
-                y: -size,
-                width: size,
-                height: size,
-                color: '#e2e2e2',
-                speed: Math.random() * 2 + 1.5
-            });
-
-            setTimeout(spawnAsteroid, Math.random() * 1000 + 800);
-        }
-
-        function rectIntersect(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                   rect1.x + rect1.width > rect2.x &&
-                   rect1.y < rect2.y + rect2.height &&
-                   rect1.y + rect1.height > rect2.y;
+            obs.style.left = oX + 'px';
+            obs.style.top = '220px'; // Ufq chizig'i
+            obs.style.transform = `translateZ(${z}px)`;
+            
+            viewport.appendChild(obs);
+            obstacles.push({ element: obs, x: oX, y: 220, z: z });
         }
 
         function update() {
             if (isGameOver) return;
 
-          
-            lasers.forEach((laser, index) => {
-                laser.y -= laser.speed;
-                if (laser.y < 0) lasers.splice(index, 1);
-            });
+            score += 2;
+            scoreDisplay.textContent = "SPEED: " + (120 + Math.floor(score/10)) + " km/h";
 
-         
-            asteroids.forEach((asteroid, aIndex) => {
-                asteroid.y += asteroid.speed;
+            // Lerp algoritmi bilan mashinani o'ta silliq surish va burish
+            let deltaX = targetX - currentX;
+            currentX += deltaX * 0.15;
+            
+            let tilt = deltaX * 0.8; // Burilganda mashinaning yonboshga qiyshayishi
+            if (tilt > 20) tilt = 20;
+            if (tilt < -20) tilt = -20;
 
-                if (rectIntersect(player, asteroid)) {
-                    endGame();
+            playerCar.style.left = currentX + 'px';
+            playerCar.style.transform = `rotateY(${tilt}deg) rotateZ(${tilt/2}deg)`;
+
+            // Yo'l chiziqlari harakati
+            for (let i = roadLines.length - 1; i >= 0; i--) {
+                let line = roadLines[i];
+                let cTop = parseInt(line.style.top);
+                if (cTop > 400) {
+                    line.remove();
+                    roadLines.splice(i, 1);
+                } else {
+                    line.style.top = (cTop + 8) + 'px';
                 }
-
-              
-                if (asteroid.y > canvas.height) {
-                    asteroids.splice(aIndex, 1);
-                }
-
-        
-                lasers.forEach((laser, lIndex) => {
-                    if (rectIntersect(laser, asteroid)) {
-                        createParticles(asteroid.x + asteroid.width/2, asteroid.y + asteroid.height/2, '#ff007f');
-                        asteroids.splice(aIndex, 1);
-                        lasers.splice(lIndex, 1);
-                        score += 10;
-                        scoreDisplay.textContent = `SCORE: ${score}`;
-                    }
-                });
-            });
-
-       
-            particles.forEach((p, index) => {
-                p.x += p.speedX;
-                p.y += p.speedY;
-                p.alpha -= 0.02;
-                if (p.alpha <= 0) particles.splice(index, 1);
-            });
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = 'rgba(255,255,255,0.1)';
-            for (let i = 0; i < 5; i++) {
-                ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
             }
 
-           
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = player.color;
-            ctx.fillStyle = player.color;
-            ctx.beginPath();
-            ctx.moveTo(player.x + player.width / 2, player.y);
-            ctx.lineTo(player.x, player.y + player.height);
-            ctx.lineTo(player.x + player.width, player.y + player.height);
-            ctx.closePath();
-            ctx.fill();
+            // 3D To'siqlar harakati va to'qnashuv
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.z += 10; // Yaqinlashish tezligi
+                obs.y += 0.6; // Yo'l bo'ylab pastga siljishi
 
-           
-            ctx.shadowColor = '#ff007f';
-            lasers.forEach(laser => {
-                ctx.fillStyle = laser.color;
-                ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
-            });
+                // Perspektivani kengaytirish effekti
+                obs.element.style.transform = `translateZ(${obs.z}px)`;
+                obs.element.style.top = obs.y + 'px';
 
-            asteroids.forEach(asteroid => {
-                ctx.shadowColor = '#00ff66';
-                ctx.fillStyle = '#00ff66';
-                ctx.beginPath();
-                ctx.arc(asteroid.x + asteroid.width/2, asteroid.y + asteroid.height/2, asteroid.width/2, 0, Math.PI * 2);
-                ctx.fill();
-            });
+                // To'siq mashina yoniga kelganda to'qnashuvni aniqlash
+                if (obs.z >= -30 && obs.z <= 20) {
+                    let oRect = obs.element.getBoundingClientRect();
+                    let pRect = playerCar.getBoundingClientRect();
 
-            
-            particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
-                ctx.shadowBlur = 5;
-                ctx.shadowColor = p.color;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
+                    if (!(oRect.right < pRect.left + 15 || 
+                          oRect.left > pRect.right - 15 || 
+                          oRect.bottom < pRect.top + 10 || 
+                          oRect.top > pRect.bottom - 10)) {
+                        
+                        endGame();
+                        return;
+                    }
+                }
 
-            ctx.shadowBlur = 0; 
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function endGame() {
-            isGameOver = true;
-            finalScoreDisplay.textContent = `SCORE: ${score}`;
-            gameOverScreen.style.display = 'flex';
-        }
-
-        function resetGame() {
-            score = 0;
-            isGameOver = false;
-            lasers = [];
-            asteroids = [];
-            particles = [];
-            scoreDisplay.textContent = `SCORE: 0`;
-            gameOverScreen.style.display = 'none';
-        }
-
-        
-        spawnAsteroid();
+                // Yo'ldan o'tib ketgan to'siqlarni o'chirish
+if (obs.z > 60) {
+obs.element.remove();
+obstacles.splice(i, 1);
+}
+}
+}
+function endGame() {
+isGameOver = true;
+clearInterval(loopInterval);
+clearInterval(spawnInterval);
+clearInterval(lineInterval);
+finalScoreDisplay.textContent = "SCORE: " + score + " PTS";
+gameOverScreen.style.display = 'flex';
+}
+function startGame() {
+document.querySelectorAll('.obstacle3d').forEach(o => o.remove());
+document.querySelectorAll('.road-line').forEach(l => l.remove());
+obstacles = [];
+roadLines = [];
+score = 0;
+isGameOver = false;
+scoreDisplay.textContent = "SPEED: 120 km/h";
+gameOverScreen.style.display = 'none';
+currentX = 200;
+targetX = 200;
+playerCar.style.left = currentX + 'px';
+playerCar.style.transform = rotateY(0deg);
+clearInterval(loopInterval);
+clearInterval(spawnInterval);
+clearInterval(lineInterval);
+loopInterval = setInterval(update, 20);
+spawnInterval = setInterval(spawnObstacle, 900); // Har 0.9 soniyada yangi to'siq
+lineInterval = setInterval(spawnRoadLine, 150);
+}
+restartBtn.addEventListener('click', startGame);
+startGame();
