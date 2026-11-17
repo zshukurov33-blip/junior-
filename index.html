@@ -227,11 +227,11 @@
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
         
-        // Kosmik tezlikni oshirish (ichkariga sho'ng'ish effekti)
+   
         warpSpeed = 35;
         card.classList.add('dive-out');
 
-        // Markazda salyut otish
+    
         createFirework(window.innerWidth / 2, window.innerHeight / 2);
 
         setTimeout(() => {
@@ -327,7 +327,7 @@
         const cx = w / 2;
         const cy = h / 2;
 
-        // Yulduzlarni chizish
+     
         for (let s of stars) {
             s.z -= warpSpeed;
 if (s.z <= 1) {
@@ -343,7 +343,7 @@ ctx.arc(sx, sy, Math.max(0.5, size), 0, Math.PI * 2);
 ctx.fillStyle = s.color;
 ctx.fill();
 }
-// Salyut uchqunlarini chizish
+
 for (let i = fireworks.length - 1; i >= 0; i--) {
 let f = fireworks[i];
 f.x += f.vx;
